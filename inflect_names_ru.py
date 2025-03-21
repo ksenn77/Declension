@@ -7,7 +7,7 @@ class Gender(Enum):
 
 
 SPECIAL_SURNAMES_ON_0 = ("Дюма", "Золя", "Гавальда", "Деррида", "Диарра", "Дрогба", "Пеккала")
-SPECIAL_SURNAMES_ON_2 = ("Дарвин", "Даруин", "Грин", "Брин", "Перих", "Рерих")
+SPECIAL_SURNAMES_ON_2 = ("Дарвин", "Даруин", "Грин", "Брин", "Перих", "Рерих", "Дитрих")
 
 SPECIAL_FIRSTNAMES = {
     "Любовь": {
@@ -36,7 +36,7 @@ SPECIAL_FIRSTNAMES = {
 CHAR_VOWELS = ('а', 'е', 'ё', 'и', 'о', 'у', 'ы', 'э', 'ю', 'я')
 # Гласные кроме а я
 CHAR_VOWELS_OTHER = CHAR_VOWELS[1:-1]
-CHAR_CONSONANTS = ('б', 'в', 'г', 'д', 'ж', 'з', 'й', 'к', 'л', 'м', 'н', 'п', 'р', 'с', 'т', 'ф', 'х', 'ц', 'ч', 'ш', 'щ', 'ъ', 'ь')
+CHAR_CONSONANTS = ('б', 'в', 'г', 'д', 'ж', 'з', 'й', 'к', 'л', 'м', 'н', 'п', 'р', 'с', 'т', 'ф', 'х', 'ц', 'ч', 'ш', 'щ', 'ь')
 
 
 def _inflect_wrapper(f):
@@ -126,6 +126,7 @@ def _inflect_surname_as_noun(_gender: Gender, _surname: str):
                 "Т": _surname[:-2] + "ой",
                 "П": _surname[:-2] + "ой"
             }
+
 # склонение фамилий и имён, оканчивающихся на согласную
 def _inflect_on_consonant(_gender, _name):
     if _gender == Gender.W:
@@ -144,7 +145,7 @@ def _inflect_on_consonant(_gender, _name):
         "Р": _name + "а",
         "Д": _name + "у",
         "В": _name + "а",
-        "Т": _name + ("ем" if (_name[-1] == "ш") or (_name[-1] == 'ч' and _name[-2] in CHAR_VOWELS_OTHER and _name[-3:-2] not in ('й','ь')) else "ом"),
+        "Т": _name + ("ем" if (_name[-3:-2] !='ь' and ((_name[-1] == "ц") or (_name[-1] == "ш") or (_name[-1] == 'ч' and _name[-2] in CHAR_VOWELS_OTHER))) else "ом"),
         "П": _name + "е"
     }
 
