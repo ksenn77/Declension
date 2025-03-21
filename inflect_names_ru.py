@@ -105,7 +105,7 @@ def _inflect_surname_as_noun(_gender: Gender, _surname: str):
                 "Р": _surname[:-2] + "ого",
                 "Д": _surname[:-2] + "ому",
                 "В": _surname[:-2] + "ого",
-                "Т": _surname[:-2] + ("и" if _surname[-2:] == "ий" else "ы") + "м",
+                "Т": _surname[:-2] + ("и" if _surname[-3] in ('г', 'ж', 'к', 'х', 'ч', 'ш', 'щ') else "ы") + "м",
                 "П": _surname[:-2] + "ом"
             }
 
@@ -138,7 +138,7 @@ def _inflect_on_consonant(_gender, _name):
             "Д": _name[:-1] + "ю",
             "В": _name[:-1] + "я",
             "Т": _name[:-1] + "ем",
-            "П": _name[:-1] + "е"
+            "П": _name[:-1] + ("и" if _name[-2] == "и" else "е")
         }
 
     return {
@@ -168,7 +168,7 @@ def _inflect_on_a_ya(_name):
                 "Р": _name[:-1] + ("и" if _name[-2] in ('г', 'ж', 'к', 'х', 'ч', 'ш', 'щ') else "ы"),
                 "Д": _name[:-1] + "е",
                 "В": _name[:-1] + "у",
-                "Т": _name[:-1] + ("ей" if _name[-2] in ('ч', 'ш', 'щ') else "ой"),
+                "Т": _name[:-1] + ("ей" if _name[-2] in ('ж', 'ч', 'ш', 'щ') else "ой"),
                 "П": _name[:-1] + "е"
         }
     if _name[-1] == "я":
@@ -191,7 +191,7 @@ def inflect_surname(gender: Gender, surname: str, male_surname: str | None = Non
     if surname[-2:] in ('их', 'ых'):
         return _inflect_0(surname)
 
-    if len(surname) > 3 and (male_surname is None or surname != male_surname):
+    if len(surname) > 4 and (male_surname is None or surname != male_surname):
         if (gender == Gender.W and surname[-3:] in ("ова", "ёва", "ева", "ина", "ына") or
                 gender == Gender.M and surname[-2:] in ("ов", "ёв", "ев", "ин", "ын")):
             return _inflect_surname_as_standart(gender, surname)
