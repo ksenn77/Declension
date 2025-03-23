@@ -44,9 +44,9 @@ def _inflect_wrapper(f):
         if len(name) <=1 :
             return _inflect_0(name)
         if "-" in name:
-            name1, name2 = name.split("-", 2)
-            res1 = f(gender, name1, *args)
-            res2 = f(gender, name2, *args)
+            name1, name2 = name.split("-", 1)
+            res1 = wrapper(gender, name1, *args)
+            res2 = wrapper(gender, name2, *args)
 
             return {
                 "Р": "%s-%s" % (res1['Р'], res2['Р']),
