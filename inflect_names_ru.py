@@ -36,8 +36,9 @@ SPECIAL_FIRSTNAMES = {
 CHAR_VOWELS = ('а', 'е', 'ё', 'и', 'о', 'у', 'ы', 'э', 'ю', 'я')
 # Гласные кроме а я
 CHAR_VOWELS_OTHER = CHAR_VOWELS[1:-1]
-CHAR_CONSONANTS = ('б', 'в', 'г', 'д', 'ж', 'з', 'й', 'к', 'л', 'м', 'н', 'п', 'р', 'с', 'т', 'ф', 'х', 'ц', 'ч', 'ш', 'щ', 'ь')
 
+CHAR_CONSONANTS = ('б', 'в', 'г', 'д', 'ж', 'з', 'й', 'к', 'л', 'м', 'н', 'п', 'р', 'с', 'т', 'ф', 'х', 'ц', 'ч', 'ш', 'щ')
+CHAR_CONSONANTS_WITH_SOFT_SIGN = CHAR_CONSONANTS + ('ь',)
 
 def _inflect_wrapper(f):
     def wrapper(gender: Gender, name, *args):
@@ -141,12 +142,18 @@ def _inflect_on_consonant(_gender, _name):
             "П": _name[:-1] + ("и" if _name[-2] == "и" else "е")
         }
 
+    # выпадающая гласная для фамилий, оканчивающихся на -ок -ек
+    if len(_name) >=4 and _name[-2:] in ("ок", "ёк", "ек"):
+        __name = _name[:-2]+_name[-1]
+    else:
+        __name = _name
+
     return {
-        "Р": _name + "а",
-        "Д": _name + "у",
-        "В": _name + "а",
-        "Т": _name + ("ем" if (_name[-3:-2] !='ь' and ((_name[-1] == "ц") or (_name[-1] == "ш") or (_name[-1] == 'ч' and _name[-2] in CHAR_VOWELS_OTHER))) else "ом"),
-        "П": _name + "е"
+        "Р": __name + "а",
+        "Д": __name + "у",
+        "В": __name + "а",
+        "Т": __name + ("ем" if (_name[-3:-2] !='ь' and ((_name[-1] == "ц") or (_name[-1] == "ш") or (_name[-1] == 'ч' and _name[-2] in CHAR_VOWELS_OTHER))) else "ом"),
+        "П": __name + "е"
     }
 
 # Склонение имён и фамилий на -а -я
@@ -168,7 +175,7 @@ def _inflect_on_a_ya(_name):
                 "Р": _name[:-1] + ("и" if _name[-2] in ('г', 'ж', 'к', 'х', 'ч', 'ш', 'щ') else "ы"),
                 "Д": _name[:-1] + "е",
                 "В": _name[:-1] + "у",
-                "Т": _name[:-1] + ("ей" if _name[-2] in ('ж', 'ч', 'ш', 'щ') else "ой"),
+                "Т": _name[:-1] + ("ей" if _name[-2] in ('ж', 'ч', 'ц', 'ш', 'щ') else "ой"),
                 "П": _name[:-1] + "е"
         }
     if _name[-1] == "я":
@@ -206,7 +213,7 @@ def inflect_surname(gender: Gender, surname: str, male_surname: str | None = Non
             if gender == Gender.M and surname[-2:] == "ий" and surname[-3] in ('ж', 'з', 'к', 'н', 'ч', 'ш', 'щ'):
                 return _inflect_surname_as_noun(gender, surname)
 
-    if surname[-1] in CHAR_CONSONANTS:
+    if surname[-1] in CHAR_CONSONANTS_WITH_SOFT_SIGN:
         return _inflect_on_consonant(gender, surname)
 
     if surname[-1] in ('а', 'я'):
@@ -219,7 +226,7 @@ def inflect_firstname(gender: Gender, firstname: str):
     if firstname in SPECIAL_FIRSTNAMES:
         return SPECIAL_FIRSTNAMES[firstname]
 
-    if firstname[-1] in CHAR_CONSONANTS:
+    if firstname[-1] in CHAR_CONSONANTS_WITH_SOFT_SIGN:
         return _inflect_on_consonant(gender, firstname)
 
     if firstname[-1] in ('а', 'я'):
