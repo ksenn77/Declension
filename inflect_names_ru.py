@@ -143,7 +143,7 @@ def _inflect_on_consonant(_gender, _name):
         }
 
     # выпадающая гласная для фамилий, оканчивающихся на -ок -ек
-    if len(_name) >=4 and _name[-2:] in ("ок", "ёк", "ек"):
+    if len(_name) >=4 and _name[-2:] in ("ок", "ёк", "ек") and _name[-3] in CHAR_CONSONANTS:
         __name = _name[:-2]+_name[-1]
     else:
         __name = _name
