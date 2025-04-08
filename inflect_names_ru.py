@@ -133,7 +133,7 @@ def _inflect_on_consonant(_gender, _name):
     if _gender == Gender.W:
         return _inflect_0(_name)
 
-    if _name[-1] == "ь" and _name[-2] not in ('з', 'л', 'р'):
+    if _name[-1] == "ь" and _name[-2] not in ('з', 'л', 'н', 'р'):
         # Склонение фамилий затруднено
         return _inflect_0(_name)
     
