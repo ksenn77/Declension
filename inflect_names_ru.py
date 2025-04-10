@@ -7,7 +7,8 @@ class Gender(Enum):
 
 
 SPECIAL_SURNAMES_ON_0 = ("Дюма", "Золя", "Гавальда", "Деррида", "Диарра", "Дрогба", "Пеккала")
-SPECIAL_SURNAMES_ON_2 = ("Дарвин", "Даруин", "Грин", "Брин", "Перих", "Рерих", "Дитрих")
+SPECIAL_SURNAMES_ON_2 = ("Дарвин", "Даруин", "Грин", "Брин", "Перих", "Рерих", "Дитрих", "Фрейндлих")
+SPECIAL_SURNAMES_INSEPARABLE = ("Кара-Мурза",)
 
 SPECIAL_FIRSTNAMES = {
     "Любовь": {
@@ -44,7 +45,7 @@ def _inflect_wrapper(f):
     def wrapper(gender: Gender, name, *args):
         if len(name) <=1 :
             return _inflect_0(name)
-        if "-" in name:
+        if "-" in name and name not in SPECIAL_SURNAMES_INSEPARABLE:
             name1, name2 = name.split("-", 1)
             res1 = wrapper(gender, name1, *args)
             res2 = wrapper(gender, name2, *args)
@@ -147,20 +148,18 @@ def _inflect_on_consonant(_gender, _name):
         }
 
     # выпадающая гласная для фамилий, оканчивающихся на -ок -ек -ец
-    if len(_name) >=4 and _name[-2:] in ("ок", "ёк", "ек", "ец") and _name[-3] in CHAR_CONSONANTS and _name[-3] != _name[-1]:
+    if len(_name) >=4 and _name[-2:] in ("ок", "ёк", "ек", "ец") and _name[-3] in CHAR_CONSONANTS and _name[-3] != _name[-1] and _name[-3:-1] not in ("не", "те"):
         if _name[-3:-1] in ("ле", "лё"):
-            __name = _name[:-2]+'ь'+_name[-1]
+            _name = _name[:-2]+'ь'+_name[-1]
         else:
-            __name = _name[:-2]+_name[-1]
-    else:
-        __name = _name
+            _name = _name[:-2]+_name[-1]
 
     return {
-        "Р": __name + "а",
-        "Д": __name + "у",
-        "В": __name + "а",
-        "Т": __name + ("ем" if (_name[-3:-2] !='ь' and ((_name[-1] == "ц") or (_name[-1] == "ш") or (_name[-1] == 'ч' and _name[-2] in CHAR_VOWELS_OTHER))) else "ом"),
-        "П": __name + "е"
+        "Р": _name + "а",
+        "Д": _name + "у",
+        "В": _name + "а",
+        "Т": _name + ("ем" if (_name[-3:-2] !='ь' and ((_name[-1] == "ц") or (_name[-1] == "ш") or (_name[-1] == 'ч' and _name[-2] in CHAR_VOWELS_OTHER))) else "ом"),
+        "П": _name + "е"
     }
 
 # Склонение имён и фамилий на -а -я
