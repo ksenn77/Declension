@@ -94,7 +94,7 @@ def _inflect_surname_as_standart(_gender: Gender, _surname: str):
 # Фамилии в форме прилагательного
 def _inflect_surname_as_noun(_gender: Gender, _surname: str):
     if _gender == Gender.M:
-        if _surname[-3:] in ("жий", "чий", "ший", "щий"):
+        if _surname[-3:] in ("жий", "цый", "чий", "ший", "щий"):
             return {
                 "Р": _surname[:-2] + "его",
                 "Д": _surname[:-2] + "ему",
@@ -112,7 +112,7 @@ def _inflect_surname_as_noun(_gender: Gender, _surname: str):
             }
 
     if _gender == Gender.W:
-        if _surname[-3:] in ("жая", "чая", "шая", "щая"):
+        if _surname[-3:] in ("жая", "цая", "чая", "шая", "щая"):
             return {
                 "Р": _surname[:-2] + "ей",
                 "Д": _surname[:-2] + "ей",
@@ -208,8 +208,8 @@ def inflect_surname(gender: Gender, surname: str, male_surname: str | None = Non
         if (gender == Gender.W and surname[-3:] in ("ова", "ёва", "ева", "ина", "ына") or
                 gender == Gender.M and surname[-2:] in ("ов", "ёв", "ев", "ин", "ын")):
             return _inflect_surname_as_standart(gender, surname)
-        # с набором surname[-3] не уверен !!!
-        if surname[-3] in ('б', 'в', 'г', 'д', 'ж', 'з', 'к', 'л', 'м', 'н', 'п', 'с', 'т', 'ч', 'ш', 'щ'):
+
+        if surname[-3] in CHAR_CONSONANTS:
             if gender == Gender.W and surname[-2:] == "ая":
                 return _inflect_surname_as_noun(gender, surname)
 
