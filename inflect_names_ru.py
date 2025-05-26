@@ -200,8 +200,7 @@ def inflect_surname(gender: Gender, surname: str, male_surname: str | None = Non
         return _inflect_0(surname)
 
     if (male_surname is None or surname != male_surname):
-        if (gender == Gender.W and len(surname) > 4 and surname[-3:] in ("ова", "ёва", "ева", "ина", "ына")) or
-                (gender == Gender.M and len(surname) > 3 and surname[-2:] in ("ов", "ёв", "ев", "ин", "ын")):
+        if (gender == Gender.W and len(surname) > 4 and surname[-3:] in ("ова", "ёва", "ева", "ина", "ына")) or (gender == Gender.M and len(surname) > 3 and surname[-2:] in ("ов", "ёв", "ев", "ин", "ын")):
             return _inflect_surname_as_standart(gender, surname)
 
         if len(surname) > 4 and surname[-3] in CHAR_CONSONANTS:
