@@ -107,7 +107,7 @@ def _inflect_surname_as_noun(_gender: Gender, _surname: str):
                 "Р": _surname[:-2] + "ого",
                 "Д": _surname[:-2] + "ому",
                 "В": _surname[:-2] + "ого",
-                "Т": _surname[:-2] + ("и" if _surname[-3] in ('г', 'ж', 'к', 'х', 'ч', 'ш', 'щ') else "ы") + "м",
+                "Т": _surname[:-2] + ("и" if _surname[-3] in ('г', 'к', 'х') else "ы") + "м",
                 "П": _surname[:-2] + "ом"
             }
 
@@ -147,12 +147,7 @@ def _inflect_on_consonant(_gender, _name):
             "П": _name[:-1] + ("и" if _name[-2] == "и" else "е")
         }
 
-    # выпадающая гласная для фамилий, оканчивающихся на -ок -ек -ец
-    if len(_name) >=4 and _name[-2:] in ("ок", "ёк", "ек", "ец") and _name[-3] in CHAR_CONSONANTS and _name[-3] != _name[-1] and _name[-3:-1] not in ("не", "те"):
-        if _name[-3:-1] in ("ле", "лё"):
-            _name = _name[:-2]+'ь'+_name[-1]
-        else:
-            _name = _name[:-2]+_name[-1]
+    # ??? выпадающая гласная (делать не будем)
 
     return {
         "Р": _name + "а",
@@ -204,12 +199,12 @@ def inflect_surname(gender: Gender, surname: str, male_surname: str | None = Non
     if surname[-2:] in ('их', 'ых'):
         return _inflect_0(surname)
 
-    if len(surname) > 4 and (male_surname is None or surname != male_surname):
-        if (gender == Gender.W and surname[-3:] in ("ова", "ёва", "ева", "ина", "ына") or
-                gender == Gender.M and surname[-2:] in ("ов", "ёв", "ев", "ин", "ын")):
+    if (male_surname is None or surname != male_surname):
+        if (gender == Gender.W and len(surname) > 4 and surname[-3:] in ("ова", "ёва", "ева", "ина", "ына")) or
+                (gender == Gender.M and len(surname) > 3 and surname[-2:] in ("ов", "ёв", "ев", "ин", "ын")):
             return _inflect_surname_as_standart(gender, surname)
 
-        if surname[-3] in CHAR_CONSONANTS:
+        if len(surname) > 4 and surname[-3] in CHAR_CONSONANTS:
             if gender == Gender.W and surname[-2:] == "ая":
                 return _inflect_surname_as_noun(gender, surname)
 
