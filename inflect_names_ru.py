@@ -253,9 +253,9 @@ def inflect_full_name(gender: Gender | None, surname: str, firstname: str, patro
     if gender is None:
         if not patronymic or len(patronymic) < 5:
             raise UnableDetermineGender("Невозможно определить пол")
-        elif patronymic[-2] == 'ич':
+        elif patronymic[-2:] == 'ич':
             gender = Gender.M
-        elif patronymic[-2] == 'на':
+        elif patronymic[-2:] == 'на':
             gender = Gender.W
         else:
             raise UnableDetermineGender("Невозможно определить пол")
