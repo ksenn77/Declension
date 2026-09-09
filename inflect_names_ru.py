@@ -6,6 +6,10 @@ class Gender(Enum):
     W = 2
 
 
+class UnableDetermineGender(Exception):
+    pass
+
+
 SPECIAL_SURNAMES_ON_0 = ("Дюма", "Золя", "Гавальда", "Деррида", "Диарра", "Дрогба", "Пеккала")
 SPECIAL_SURNAMES_ON_2 = ("Дарвин", "Даруин", "Грин", "Брин", "Перих", "Рерих", "Дитрих", "Фрейндлих")
 SPECIAL_SURNAMES_INSEPARABLE = ("Кара-Мурза",)
@@ -245,7 +249,17 @@ def inflect_patronymic(gender, patronymic):
     return _inflect_0(patronymic)
 
 
-def inflect_full_name(gender: Gender, surname: str, firstname: str, patronymic: str | None = None, male_surname: str | None = None):
+def inflect_full_name(gender: Gender | None, surname: str, firstname: str, patronymic: str | None = None, male_surname: str | None = None):
+    if gender is None:
+        if not patronymic or len(patronymic) < 5:
+            raise UnableDetermineGender("Невозможно определить пол")
+        elif patronymic[-2] == 'ич':
+            gender = Gender.M
+        elif patronymic[-2] == 'на':
+            gender = Gender.W
+        else:
+            raise UnableDetermineGender("Невозможно определить пол")
+
     result = inflect_surname(gender, surname, male_surname)
 
     for p, n in inflect_firstname(gender, firstname).items():
