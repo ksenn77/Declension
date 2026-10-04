@@ -6,10 +6,6 @@ class Gender(Enum):
     W = 2
 
 
-class UnableDetermineGender(Exception):
-    pass
-
-
 SPECIAL_SURNAMES_ON_0 = ("Дюма", "Золя", "Гавальда", "Деррида", "Диарра", "Дрогба", "Пеккала")
 SPECIAL_SURNAMES_ON_2 = ("Дарвин", "Даруин", "Грин", "Брин", "Перих", "Рерих", "Дитрих", "Фрейндлих")
 SPECIAL_SURNAMES_INSEPARABLE = ("Кара-Мурза",)
@@ -42,12 +38,14 @@ CHAR_VOWELS = ('а', 'е', 'ё', 'и', 'о', 'у', 'ы', 'э', 'ю', 'я')
 # Гласные кроме а я
 CHAR_VOWELS_OTHER = CHAR_VOWELS[1:-1]
 
-CHAR_CONSONANTS = ('б', 'в', 'г', 'д', 'ж', 'з', 'й', 'к', 'л', 'м', 'н', 'п', 'р', 'с', 'т', 'ф', 'х', 'ц', 'ч', 'ш', 'щ')
+CHAR_CONSONANTS = (
+'б', 'в', 'г', 'д', 'ж', 'з', 'й', 'к', 'л', 'м', 'н', 'п', 'р', 'с', 'т', 'ф', 'х', 'ц', 'ч', 'ш', 'щ')
 CHAR_CONSONANTS_WITH_SOFT_SIGN = CHAR_CONSONANTS + ('ь',)
+
 
 def _inflect_wrapper(f):
     def wrapper(gender: Gender, name, *args):
-        if len(name) <=1 :
+        if len(name) <= 1:
             return _inflect_0(name)
         if "-" in name and name not in SPECIAL_SURNAMES_INSEPARABLE:
             name1, name2 = name.split("-", 1)
@@ -62,6 +60,7 @@ def _inflect_wrapper(f):
                 "П": "%s-%s" % (res1['П'], res2['П']),
             }
         return f(gender, name, *args)
+
     return wrapper
 
 
@@ -73,6 +72,7 @@ def _inflect_0(_name):
         "Т": _name,
         "П": _name
     }
+
 
 # Стандартные фамилии на -ов(а) -ев(а) -ёв(а) -ин(а) -ын(а)
 def _inflect_surname_as_standart(_gender: Gender, _surname: str):
@@ -133,6 +133,7 @@ def _inflect_surname_as_noun(_gender: Gender, _surname: str):
                 "П": _surname[:-2] + "ой"
             }
 
+
 # склонение фамилий и имён, оканчивающихся на согласную
 def _inflect_on_consonant(_gender, _name):
     if _gender == Gender.W:
@@ -141,7 +142,7 @@ def _inflect_on_consonant(_gender, _name):
     if _name[-1] == "ь" and _name[-2] not in ('з', 'л', 'н', 'р'):
         # Склонение фамилий затруднено
         return _inflect_0(_name)
-    
+
     if _name[-1] in ("ь", "й"):
         return {
             "Р": _name[:-1] + "я",
@@ -157,9 +158,11 @@ def _inflect_on_consonant(_gender, _name):
         "Р": _name + "а",
         "Д": _name + "у",
         "В": _name + "а",
-        "Т": _name + ("ем" if (_name[-3:-2] !='ь' and ((_name[-1] == "ц") or (_name[-1] == "ш") or (_name[-1] == 'ч' and _name[-2] in CHAR_VOWELS_OTHER))) else "ом"),
+        "Т": _name + ("ем" if (_name[-3:-2] != 'ь' and ((_name[-1] == "ц") or (_name[-1] == "ш") or (
+                    _name[-1] == 'ч' and _name[-2] in CHAR_VOWELS_OTHER))) else "ом"),
         "П": _name + "е"
     }
+
 
 # Склонение имён и фамилий на -а -я
 def _inflect_on_a_ya(_name):
@@ -177,11 +180,11 @@ def _inflect_on_a_ya(_name):
 
     if _name[-1] == "а":
         return {
-                "Р": _name[:-1] + ("и" if _name[-2] in ('г', 'ж', 'к', 'х', 'ч', 'ш', 'щ') else "ы"),
-                "Д": _name[:-1] + "е",
-                "В": _name[:-1] + "у",
-                "Т": _name[:-1] + ("ей" if _name[-2] in ('ж', 'ч', 'ц', 'ш', 'щ') else "ой"),
-                "П": _name[:-1] + "е"
+            "Р": _name[:-1] + ("и" if _name[-2] in ('г', 'ж', 'к', 'х', 'ч', 'ш', 'щ') else "ы"),
+            "Д": _name[:-1] + "е",
+            "В": _name[:-1] + "у",
+            "Т": _name[:-1] + ("ей" if _name[-2] in ('ч', 'ц', 'ш', 'щ') else "ой"),
+            "П": _name[:-1] + "е"
         }
     if _name[-1] == "я":
         return {
@@ -192,8 +195,9 @@ def _inflect_on_a_ya(_name):
             "П": _name[:-1] + "е"
         }
 
+
 @_inflect_wrapper
-def inflect_surname(gender: Gender, surname: str, male_surname: str | None = None) -> dict:
+def inflect_surname(gender: Gender, surname: str, male_surname: str = None) -> dict:
     if surname in SPECIAL_SURNAMES_ON_0:
         return _inflect_0(surname)
 
@@ -203,8 +207,9 @@ def inflect_surname(gender: Gender, surname: str, male_surname: str | None = Non
     if surname[-2:] in ('их', 'ых'):
         return _inflect_0(surname)
 
-    if (male_surname is None or surname != male_surname):
-        if (gender == Gender.W and len(surname) > 4 and surname[-3:] in ("ова", "ёва", "ева", "ина", "ына")) or (gender == Gender.M and len(surname) > 3 and surname[-2:] in ("ов", "ёв", "ев", "ин", "ын")):
+    if male_surname is None or surname != male_surname:
+        if (gender == Gender.W and len(surname) > 4 and surname[-3:] in ("ова", "ёва", "ева", "ина", "ына")) or (
+                gender == Gender.M and len(surname) > 3 and surname[-2:] in ("ов", "ёв", "ев", "ин", "ын")):
             return _inflect_surname_as_standart(gender, surname)
 
         if len(surname) > 4 and surname[-3] in CHAR_CONSONANTS:
@@ -225,6 +230,7 @@ def inflect_surname(gender: Gender, surname: str, male_surname: str | None = Non
 
     return _inflect_0(surname)
 
+
 @_inflect_wrapper
 def inflect_firstname(gender: Gender, firstname: str):
     if firstname in SPECIAL_FIRSTNAMES:
@@ -238,8 +244,8 @@ def inflect_firstname(gender: Gender, firstname: str):
 
     return _inflect_0(firstname)
 
-def inflect_patronymic(gender, patronymic):
 
+def inflect_patronymic(gender, patronymic):
     if gender == Gender.M and patronymic[-2:] == "ич":
         return _inflect_on_consonant(gender, patronymic)
 
@@ -249,21 +255,62 @@ def inflect_patronymic(gender, patronymic):
     return _inflect_0(patronymic)
 
 
-def inflect_full_name(gender: Gender | None, surname: str, firstname: str, patronymic: str | None = None, male_surname: str | None = None):
+def define_gender(surname: str, firstname: str, patronymic: str = None):
+    if patronymic and len(patronymic) >= 5:
+        if patronymic[-2:] == 'ич':
+            return Gender.M
+        if patronymic[-2:] == 'на':
+            return Gender.W
+
+    if firstname.replace("ё", "е") in (
+            "Александр", "Алексей", "Анатолий", "Андрей", "Антон", "Аркадий",
+            "Артем", "Афанасий", "Богдан", "Борис", "Вадим", "Валентин",
+            "Валерий", "Василий", "Виктор", "Виталий", "Владимир",
+            "Всеволод", "Геннадий", "Георгий", "Герман", "Глеб",
+            "Гордей", "Григорий", "Даниил", "Данил", "Данила", "Денис", "Дмитрий",
+            "Евгений", "Егор", "Елисей", "Захар", "Иван", "Игорь", "Илья", "Иннокентий",
+            "Исаак", "Кирилл", "Константин", "Леонид", "Макар", "Максим",
+            "Марат", "Матвей", "Марк", "Мирон", "Михаил", "Никита",
+            "Николай", "Олег", "Павел", "Петр", "Платон", "Прохор",
+            "Роман", "Руслан", "Савва", "Савелий", "Семен", "Серафим",
+            "Сергей", "Степан", "Тимофей", "Тимур", "Трофим",
+            "Федор", "Филипп", "Юрий", "Яков"
+    ) or (firstname.endswith("слав") and len(firstname) >= 6):
+        return Gender.M
+
+    if firstname in (
+            "Аврора", "Агафья", "Агата", "Алевтина", "Александра", "Алина", "Алиса", "Алла",
+            "Анастасия", "Ангелина", "Анжела", "Анжелика", "Анна", "Арина", "Валентина",
+            "Валерия", "Варвара", "Василиса", "Вера", "Вероника", "Виктория",
+            "Виолетта", "Галина", "Дария", "Дарья", "Диана", "Дина", "Ева", "Екатерина", "Елена",
+            "Елизавета", "Евдокия", "Евгения", "Жанна", "Зинаида", "Злата", "Зоя",
+            "Инна", "Ирина", "Ия", "Карина", "Кира", "Клавдия", "Ксения",
+            "Лариса", "Лидия", "Лилия", "Любовь", "Людмила", "Маргарита",
+            "Марина", "Мария", "Марта", "Мила", "Милана", "Милена", "Милина", "Надежда",
+            "Наталья", "Наталия", "Нина", "Оксана", "Ольга", "Полина", "Раиса",
+            "Регина", "Светлана", "Снежана", "София", "Софья", "Таисия", "Тамара",
+            "Татьяна", "Ульяна", "Юлия", "Яна"
+    ) or (firstname.endswith("слава") and len(firstname) >= 7):
+        return Gender.W
+
+    if surname.endswith(("ов", "ев", "ёв", "ин", "ын", "ский", "цкий")):
+        return Gender.M
+
+    if surname.endswith(("ова", "ева", "ёва", "ина", "ына", "ская", "цкая")):
+        return Gender.W
+
+    return None
+
+
+def inflect_full_name(gender: Gender | None, surname: str, firstname: str, patronymic: str | None = None,
+                      male_surname: str = None):
     if gender is None:
-        if not patronymic or len(patronymic) < 5:
-            raise UnableDetermineGender("Невозможно определить пол")
-        elif patronymic[-2:] == 'ич':
-            gender = Gender.M
-        elif patronymic[-2:] == 'на':
-            gender = Gender.W
-        else:
-            raise UnableDetermineGender("Невозможно определить пол")
+        gender = define_gender(surname, firstname, patronymic)
 
     result = inflect_surname(gender, surname, male_surname)
 
     for p, n in inflect_firstname(gender, firstname).items():
-        result[p] += " "+ n
+        result[p] += " " + n
 
     if patronymic:
         for p, n in inflect_patronymic(gender, patronymic).items():
